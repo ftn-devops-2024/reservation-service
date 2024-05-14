@@ -1,0 +1,58 @@
+<section class="vh-80 min-vh-100 hero-main" >
+  <div class="container vh-100" >
+    <div class="login-reg-panel">
+      <div class="login-info-box" *ngIf="!showLogin">
+        <h3 class="pb-4">Have an account?</h3>
+        <button type="button" class="btn btn-outline-light" (click)="showLogin = true">Login</button>
+      </div>
+
+      <div class="register-info-box" *ngIf="showLogin">
+        <h3 class="pb-3">Don't have an account?</h3>
+        <button type="button" class="btn btn-outline-light" (click)="registerClick()">Register</button>
+      </div>
+
+      <div class="white-panel">
+        <div *ngIf="showLogin" class="login-show show-log-panel">
+          <h2>LOGIN</h2>
+          <div>
+            <input type="text" class="form-control" placeholder="Email" [(ngModel)]="loginInfo.email">
+            <input type="password" class="form-control" placeholder="Password" [(ngModel)]="loginInfo.password">
+            <button type="button" class="btn btn-dark" (click)="loginUser()">Login</button>
+          </div>
+        </div>
+        <div *ngIf="!showLogin" class="register-show show-log-panel">
+          <h2>REGISTER</h2>
+          <mat-card-content>
+
+            <div style="padding-left: 38%;padding-top: 20%" *ngIf="isRegistered">
+              <mat-spinner color="warn"></mat-spinner>
+            </div>
+
+            <div *ngIf="!isRegistered">
+
+              <div class="row pt-3 px-2">
+
+                <input type="text" class="form-control" placeholder="First name" [(ngModel)]="user.name">
+                <input type="text" class="form-control" placeholder="Last name" [(ngModel)]="user.surname">
+                <input type="text" class="form-control" email placeholder="Email" [(ngModel)]="user.email">
+                <input type="password" class="form-control" placeholder="Password" [(ngModel)]="user.password">
+                <div class="pt-2"></div>
+                <input type="password" class="form-control" placeholder="Password" [(ngModel)]="reenterPass">
+
+              </div>
+
+              <div class="pt-3">
+                <button (click)="registerUser()" class="btn btn-dark" type="submit">
+                  Register
+                </button>
+              </div>
+
+
+            </div>
+          </mat-card-content>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
