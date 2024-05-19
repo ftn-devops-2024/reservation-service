@@ -55,5 +55,6 @@ public class TestControllerIntegrationTest {
                 .get("/test")
                 .then()
                 .statusCode(200);
+        System.out.println("test invoked");
     }
 }
