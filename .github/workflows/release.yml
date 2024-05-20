@@ -1,12 +1,8 @@
 name: Kaniko release
 
 on:
-  workflow_dispatch:
-    inputs:
-      releaseTag:
-        description: 'Release tag'
-        required: true
-        default: '0.1.0'
+  push:
+    tags: [ '*.*.*' ]
 jobs:
   build:
     name: Build, test and release to Docker Hub
@@ -40,7 +36,7 @@ jobs:
         uses: aevea/action-kaniko@master
         with:
           image: ftndevops2024/reservation-service
-          tag: ${{ github.event.inputs.releaseTag }}
+          tag: ${{ github.ref_name }}
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           cache: true
