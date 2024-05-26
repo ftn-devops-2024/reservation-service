@@ -1,6 +1,5 @@
 package com.devops.reservationservice.model;
 
-
 import com.devops.reservationservice.dto.AccommodationDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -24,7 +23,7 @@ public class Accommodation {
     private Long id;
 
     @Column
-    private String ownerId;
+    private Long ownerId;
 
     @Column
     private String name;
@@ -45,13 +44,18 @@ public class Accommodation {
     @OneToMany(mappedBy = "accommodation")
     private List<ReservationRequest> reservationRequests;
 
+    @OneToMany(mappedBy = "accommodation", cascade = CascadeType.ALL)
+    private List<AvailabilityPeriod> availabilityPeriods;
+
+    @OneToMany(mappedBy = "accommodation", cascade = CascadeType.ALL)
+    private List<SpecialPrice> specialPrices;
 
     public void populateAccommodationFields(AccommodationDTO accommodationDTO){
         this.ownerId = accommodationDTO.getOwnerId();
         this.name = accommodationDTO.getName();
         this.location = accommodationDTO.getLocation();
         List<Perk> perks = new ArrayList<Perk>();
-        for (String perk:accommodationDTO.getPerks()){
+        for (String perk: accommodationDTO.getPerks()){
             perks.add(Perk.valueOf(perk));
         }
         this.perks = perks;
@@ -60,9 +64,5 @@ public class Accommodation {
         this.maxGuests = accommodationDTO.getMaxGuests();
         this.pricePerDay = accommodationDTO.getPricePerDay();
         this.automaticReservation = accommodationDTO.getAutomaticReservation();
-
-
     }
-
-
 }
