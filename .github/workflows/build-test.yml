@@ -48,11 +48,11 @@ jobs:
         path: ~/.m2
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
-    - name: Build and analyze
+    - name: Sonar checks
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: mvn -f reservation-service/ -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=ftn-devops-2024_reservation-service
+      run: mvn -f reservation-service/ -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=ftn-devops-2024_reservation-service
     - name: Run  Tests
       working-directory: ./reservation-service
       run: mvn test
