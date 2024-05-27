@@ -27,35 +27,43 @@ public class Accommodation {
 
     @Column
     private String name;
+
     @Column
     private String location;
-    @ElementCollection
+
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<Perk> perks;
-    @ElementCollection
+
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<String> photos;
+
     @Column
-    Integer minGuests;
+    private Integer minGuests;
+
     @Column
-    Integer maxGuests;
+    private Integer maxGuests;
+
     @Column
-    Double pricePerDay;
+    private Double pricePerDay;
+
     @Column
-    Boolean automaticReservation;
-    @OneToMany(mappedBy = "accommodation")
+    private Boolean automaticReservation;
+
+    @OneToMany(mappedBy = "accommodation", fetch = FetchType.EAGER)
     private List<ReservationRequest> reservationRequests;
 
-    @OneToMany(mappedBy = "accommodation", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "accommodation", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AvailabilityPeriod> availabilityPeriods;
 
-    @OneToMany(mappedBy = "accommodation", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "accommodation", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SpecialPrice> specialPrices;
 
-    public void populateAccommodationFields(AccommodationDTO accommodationDTO){
+    public void populateAccommodationFields(AccommodationDTO accommodationDTO) {
         this.ownerId = accommodationDTO.getOwnerId();
         this.name = accommodationDTO.getName();
         this.location = accommodationDTO.getLocation();
-        List<Perk> perks = new ArrayList<Perk>();
-        for (String perk: accommodationDTO.getPerks()){
+        List<Perk> perks = new ArrayList<>();
+        for (String perk : accommodationDTO.getPerks()) {
             perks.add(Perk.valueOf(perk));
         }
         this.perks = perks;

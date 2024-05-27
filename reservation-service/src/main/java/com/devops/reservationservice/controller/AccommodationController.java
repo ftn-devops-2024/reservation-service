@@ -26,21 +26,13 @@ public class AccommodationController {
     @PutMapping("/{id}")
     public ResponseEntity<AccommodationDTO> updateAccommodation(@RequestBody AccommodationDTO requestDTO) {
         AccommodationDTO updatedAccommodation = accommodationService.updateAccommodation(requestDTO);
-        if (updatedAccommodation != null) {
-            return ResponseEntity.ok(updatedAccommodation);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(updatedAccommodation);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<AccommodationDTO> getAccommodationById(@PathVariable Long id) {
         AccommodationDTO accommodation = accommodationService.getAccommodationById(id);
-        if (accommodation != null) {
-            return ResponseEntity.ok(accommodation);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(accommodation);
     }
 
     @GetMapping

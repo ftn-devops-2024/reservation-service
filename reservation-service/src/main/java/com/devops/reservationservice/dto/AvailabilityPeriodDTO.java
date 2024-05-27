@@ -1,17 +1,14 @@
 package com.devops.reservationservice.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 
-@Getter
-@Setter
-@AllArgsConstructor
+@Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class AvailabilityPeriodDTO {
+    private Long id;
     private LocalDate startDate;
     private LocalDate endDate;
 }
