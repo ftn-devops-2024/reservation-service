@@ -1,41 +1,41 @@
 package com.devops.reservationservice.model;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
-@Table
+@AllArgsConstructor
+@NoArgsConstructor
 public class Reservation {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column
     private Long id;
-    @Column
-    private LocalDateTime startDate;
-    @Column
-    private LocalDateTime endDate;
-    @Column
-    private String accommodationID;
-    @Column
-    private String guestID;
-    @Column
-    private int guestNumber;
-    @Column
-    private ReservationRequestStatus status;
-    @Column
-    private String ownerID;
-    @Column
-    private String reservedTermId;
-    @Column
-    private String accommodationName;
+
+    @ManyToOne
+    @JoinColumn(name = "accommodation_id", nullable = false)
+    private Accommodation accommodation;
+
+    @Column(nullable = false)
+    private Long guestId;
+
+    @Column(nullable = false)
+    private LocalDate startDate;
+
+    @Column(nullable = false)
+    private LocalDate endDate;
+
+    @Column(nullable = false)
+    private Integer numberOfGuests;
+
+    @Enumerated(EnumType.STRING)
+    private ReservationStatus status;
 }
+

@@ -50,7 +50,7 @@ public class Accommodation {
     private Boolean automaticReservation;
 
     @OneToMany(mappedBy = "accommodation", fetch = FetchType.EAGER)
-    private List<ReservationRequest> reservationRequests;
+    private List<Reservation> reservationRequests;
 
     @OneToMany(mappedBy = "accommodation", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AvailabilityPeriod> availabilityPeriods;
