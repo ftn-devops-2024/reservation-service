@@ -13,29 +13,21 @@ import java.time.LocalDate;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Reservation {
+public class SpecialPrice {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "accommodation_id", nullable = false)
-    private Accommodation accommodation;
-
-    @Column(nullable = false)
-    private Long guestId;
-
-    @Column(nullable = false)
+    @Column
     private LocalDate startDate;
 
-    @Column(nullable = false)
+    @Column
     private LocalDate endDate;
 
-    @Column(nullable = false)
-    private Integer numberOfGuests;
+    @Column
+    private Double price;
 
-    @Enumerated(EnumType.STRING)
-    private ReservationStatus status;
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private Accommodation accommodation;
 }
-

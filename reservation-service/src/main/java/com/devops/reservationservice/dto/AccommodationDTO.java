@@ -7,13 +7,13 @@ import lombok.Setter;
 
 import java.util.List;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class AccommodationDTO {
     private Long id;
-    private String ownerId;
+    private Long ownerId;
     private String name;
     private String location;
     private List<String> perks;
@@ -22,4 +22,6 @@ public class AccommodationDTO {
     private Integer maxGuests;
     private Double pricePerDay;
     private Boolean automaticReservation;
+    private List<AvailabilityPeriodDTO> availabilityPeriods;
+    private List<SpecialPriceDTO> specialPrices;
 }
