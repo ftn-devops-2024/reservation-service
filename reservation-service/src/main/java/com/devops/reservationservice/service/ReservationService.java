@@ -6,6 +6,7 @@ import com.devops.reservationservice.model.Reservation;
 import com.devops.reservationservice.model.ReservationStatus;
 import com.devops.reservationservice.repository.AccommodationRepository;
 import com.devops.reservationservice.repository.ReservationRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,13 +16,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ReservationService {
 
-    @Autowired
-    private ReservationRepository reservationRepository;
+    private final ReservationRepository reservationRepository;
 
-    @Autowired
-    private AccommodationRepository accommodationRepository;
+    private final AccommodationRepository accommodationRepository;
 
     @Transactional
     public ReservationDTO createReservation(ReservationDTO requestDTO) {
