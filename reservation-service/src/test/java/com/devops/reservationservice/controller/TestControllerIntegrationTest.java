@@ -17,9 +17,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 
 import static io.restassured.RestAssured.given;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        properties = { "spring.datasource.url=jdbc:tc:postgresql:11-alpine:///testdb" }
-)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 public class TestControllerIntegrationTest {
 
