@@ -18,7 +18,7 @@ public class AccommodationController {
     }
 
     @PostMapping
-    public ResponseEntity<AccommodationDTO> createAccommodation(@RequestBody AccommodationDTO requestDTO) {
+    public ResponseEntity<AccommodationDTO> createAccommodation(@PathVariable Long id, @RequestBody AccommodationDTO requestDTO) {
         AccommodationDTO createdAccommodation = accommodationService.createAccommodation(requestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdAccommodation);
     }

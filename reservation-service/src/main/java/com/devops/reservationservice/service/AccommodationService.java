@@ -8,6 +8,7 @@ import com.devops.reservationservice.model.AvailabilityPeriod;
 import com.devops.reservationservice.model.Perk;
 import com.devops.reservationservice.model.SpecialPrice;
 import com.devops.reservationservice.repository.AccommodationRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,10 +17,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class AccommodationService {
 
-    @Autowired
-    private AccommodationRepository accommodationRepository;
+    private final AccommodationRepository accommodationRepository;
 
     @Transactional
     public AccommodationDTO createAccommodation(AccommodationDTO requestDTO) {
@@ -48,7 +49,7 @@ public class AccommodationService {
     @Transactional(readOnly = true)
     public List<AccommodationDTO> getAllAccommodations() {
         List<Accommodation> accommodations = accommodationRepository.findAll();
-        return accommodations.stream().map(this::mapToDTO).collect(Collectors.toList());
+        return accommodations.stream().map(this::mapToDTO).toList();
     }
 
     @Transactional

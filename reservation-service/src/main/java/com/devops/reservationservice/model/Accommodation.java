@@ -62,11 +62,11 @@ public class Accommodation {
         this.ownerId = accommodationDTO.getOwnerId();
         this.name = accommodationDTO.getName();
         this.location = accommodationDTO.getLocation();
-        List<Perk> perks = new ArrayList<>();
+        List<Perk> perkArrayList = new ArrayList<>();
         for (String perk : accommodationDTO.getPerks()) {
-            perks.add(Perk.valueOf(perk));
+            perkArrayList.add(Perk.valueOf(perk));
         }
-        this.perks = perks;
+        this.perks = perkArrayList;
         this.photos = accommodationDTO.getPhotos();
         this.minGuests = accommodationDTO.getMinGuests();
         this.maxGuests = accommodationDTO.getMaxGuests();
