@@ -10,6 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/accommodations")
+@CrossOrigin(origins = "http://localhost:4200")
 public class AccommodationController {
     private final AccommodationService accommodationService;
 
@@ -18,7 +19,7 @@ public class AccommodationController {
     }
 
     @PostMapping
-    public ResponseEntity<AccommodationDTO> createAccommodation(@PathVariable Long id, @RequestBody AccommodationDTO requestDTO) {
+    public ResponseEntity<AccommodationDTO> createAccommodation( @RequestBody AccommodationDTO requestDTO) {
         AccommodationDTO createdAccommodation = accommodationService.createAccommodation(requestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdAccommodation);
     }

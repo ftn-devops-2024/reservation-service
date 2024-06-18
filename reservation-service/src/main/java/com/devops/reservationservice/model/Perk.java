@@ -4,5 +4,6 @@ public enum Perk {
     WIFI,
     KITCHEN,
     AIR_CONDITIONING,
-    FREE_PARKING
+    FREE_PARKING,
+    PET_FRIENDLY
 }
