@@ -55,11 +55,8 @@ public class ReservationController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> cancelReservation(@PathVariable Long id,
-                                                  @RequestHeader("Authorization") String authToken,
-                                                  @CookieValue("Fingerprint") String fingerprint) {
+    public ResponseEntity<Void> cancelReservation(@PathVariable Long id) {
         try {
-            authService.authorizeGuest(authToken, fingerprint);
             reservationService.cancelReservation(id);
             return ResponseEntity.noContent().build();
         } catch (UnauthorizedException e) {
