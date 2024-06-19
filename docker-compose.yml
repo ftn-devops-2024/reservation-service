@@ -1,17 +1,22 @@
 version: '3.8'
 
 services:
-  reservation-db:
+  reservation-database:
     image: postgres:latest
-    container_name: reservation-db
+    container_name: reservation-database
     environment:
       POSTGRES_DB: reservation
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: root
+      POSTGRES_PASSWORD: postgres
     ports:
-      - "5000:5432"
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d postgres -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_infoo:/var/lib/postgresql/infoo
 
   reservation-service:
     build:
@@ -22,9 +27,14 @@ services:
       - "9000:9002"
     environment:
       REGISTRY_SERVER: service-registry
-      DB_SERVER: reservation-db
+      DB_SERVER: reservation-database
+      MANAGEMENT_METRICS_TAGS_APPLICATION: reservation-service
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo:4317
+      OTEL_SERVICE_NAME: reservation-service
+      OTEL_RESOURCE_ATTRIBUTES: compose_service=reservation-service
+      OTEL_METRICS_EXPORTER: none
     depends_on:
-      - reservation-db
+      - reservation-database
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin_container
@@ -35,4 +45,4 @@ services:
       - "5050:80"
 
 volumes:
-  postgres_data:
+  postgres_infoo:
