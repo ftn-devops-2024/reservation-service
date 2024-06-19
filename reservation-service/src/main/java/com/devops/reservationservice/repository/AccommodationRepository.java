@@ -25,5 +25,7 @@ public interface AccommodationRepository extends JpaRepository<Accommodation, Lo
             "LEFT JOIN FETCH a.specialPrices " +
             "LEFT JOIN FETCH a.photos")
     List<Accommodation> findAllWithAssociations();
+
+    List<Accommodation> findByOwnerId(Long ownerId);
 }
 

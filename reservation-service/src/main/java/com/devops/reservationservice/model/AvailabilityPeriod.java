@@ -25,6 +25,6 @@ public class AvailabilityPeriod {
     @Column
     private LocalDate endDate;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.EAGER)
     private Accommodation accommodation;
 }

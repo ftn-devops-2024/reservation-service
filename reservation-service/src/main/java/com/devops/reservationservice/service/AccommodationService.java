@@ -9,7 +9,6 @@ import com.devops.reservationservice.model.Perk;
 import com.devops.reservationservice.model.SpecialPrice;
 import com.devops.reservationservice.repository.AccommodationRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,9 +30,10 @@ public class AccommodationService {
     }
 
     @Transactional
-    public AccommodationDTO updateAccommodation(AccommodationDTO requestDTO) {
-        Accommodation accommodation = accommodationRepository.findById(requestDTO.getId())
+    public AccommodationDTO updateAccommodation(Long id, AccommodationDTO requestDTO) {
+        Accommodation accommodation = accommodationRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Accommodation not found"));
+
         accommodation.populateAccommodationFields(requestDTO);
         accommodationRepository.save(accommodation);
         return requestDTO;
@@ -44,6 +44,13 @@ public class AccommodationService {
         Accommodation accommodation = accommodationRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Accommodation not found"));
         return mapToDTO(accommodation);
+    }
+
+    @Transactional(readOnly = true)
+    public List<AccommodationDTO> getAccommodationsByOwnerId(Long ownerId){
+        List<Accommodation> accommodations = accommodationRepository.findByOwnerId(ownerId);
+        return accommodations.stream().map(this::mapToDTO).toList();
+
     }
 
     @Transactional(readOnly = true)

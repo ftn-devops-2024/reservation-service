@@ -14,7 +14,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/accommodations")
-@CrossOrigin(origins = "http://localhost:4200")
 public class AccommodationController {
     private final AccommodationService accommodationService;
 
@@ -27,11 +26,8 @@ public class AccommodationController {
 
     @PostMapping
     public ResponseEntity<AccommodationDTO> createAccommodation(
-                                                                @RequestBody AccommodationDTO requestDTO,
-                                                                @RequestHeader("Authorization") String authToken,
-                                                                @CookieValue("Fingerprint") String fingerprint) {
+                                                                @RequestBody AccommodationDTO requestDTO) {
         try {
-            authService.authorizeHost(authToken, fingerprint);
             AccommodationDTO createdAccommodation = accommodationService.createAccommodation(requestDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdAccommodation);
         } catch (UnauthorizedException e) {
@@ -43,17 +39,12 @@ public class AccommodationController {
 
     @PutMapping("/{id}")
     public ResponseEntity<AccommodationDTO> updateAccommodation(@PathVariable Long id,
-                                                                @RequestBody AccommodationDTO requestDTO,
-                                                                @RequestHeader("Authorization") String authToken,
-                                                                @CookieValue("Fingerprint") String fingerprint) {
+                                                                @RequestBody AccommodationDTO requestDTO) {
         try {
-            authService.authorizeHost(authToken, fingerprint);
-            AccommodationDTO updatedAccommodation = accommodationService.updateAccommodation(requestDTO);
+            AccommodationDTO updatedAccommodation = accommodationService.updateAccommodation(id, requestDTO);
             return ResponseEntity.ok(updatedAccommodation);
         } catch (UnauthorizedException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized", e);
-        } catch (RuntimeException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e);
         }
     }
 
@@ -61,6 +52,12 @@ public class AccommodationController {
     public ResponseEntity<AccommodationDTO> getAccommodationById(@PathVariable Long id) {
         AccommodationDTO accommodation = accommodationService.getAccommodationById(id);
         return ResponseEntity.ok(accommodation);
+    }
+
+    @GetMapping ("/owner/{id}")
+    public ResponseEntity<List<AccommodationDTO>> getAccommodationsByOwner(@PathVariable Long id){
+        List<AccommodationDTO> accommodations = accommodationService.getAccommodationsByOwnerId(id);
+        return ResponseEntity.ok(accommodations);
     }
 
     @GetMapping

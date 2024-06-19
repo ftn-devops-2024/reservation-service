@@ -28,6 +28,6 @@ public class SpecialPrice {
     @Column
     private Double price;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.EAGER)
     private Accommodation accommodation;
 }
