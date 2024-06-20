@@ -9,6 +9,7 @@ import com.devops.reservationservice.model.AvailabilityPeriod;
 import com.devops.reservationservice.model.Perk;
 import com.devops.reservationservice.model.SpecialPrice;
 import com.devops.reservationservice.repository.AccommodationRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -132,5 +134,27 @@ public class AccommodationService {
         }
 
         return totalPrice;
+    }
+
+    public void addPhoto(Long id, String base64Image) {
+        Optional<Accommodation> optionalAccommodation = accommodationRepository.findById(id);
+        if (optionalAccommodation.isPresent()) {
+            Accommodation accommodation = optionalAccommodation.get();
+            List<String> photos = accommodation.getPhotos();
+            photos.add(base64Image); // Add base64 image string to the list of photos
+            accommodation.setPhotos(photos);
+            accommodationRepository.save(accommodation);
+        } else {
+            throw new EntityNotFoundException("Accommodation not found with id: " + id);
+        }
+    }
+    public List<String> getPhotos(Long id) {
+        Optional<Accommodation> optionalAccommodation = accommodationRepository.findById(id);
+        if (optionalAccommodation.isPresent()) {
+            Accommodation accommodation = optionalAccommodation.get();
+            return accommodation.getPhotos(); // Retrieve list of base64 image strings
+        } else {
+            throw new EntityNotFoundException("Accommodation not found with id: " + id);
+        }
     }
 }

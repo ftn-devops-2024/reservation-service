@@ -101,4 +101,6 @@ public class Accommodation {
         this.specialPrices.clear();
         this.specialPrices.addAll(specialPricesList);
     }
+
+
 }

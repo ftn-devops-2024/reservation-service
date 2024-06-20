@@ -5,15 +5,19 @@ import com.devops.reservationservice.dto.SearchResultDTO;
 import com.devops.reservationservice.exceptions.UnauthorizedException;
 import com.devops.reservationservice.service.AccommodationService;
 import com.devops.reservationservice.service.AuthService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 import java.util.List;
 
 @RestController
@@ -26,6 +30,28 @@ public class AccommodationController {
 
     public AccommodationController(AccommodationService accommodationService) {
         this.accommodationService = accommodationService;
+    }
+
+    @PostMapping("/{id}/uploadImage")
+    public ResponseEntity<String> uploadImage(@PathVariable Long id,
+                                              @RequestParam("file") MultipartFile file) {
+        try {
+            String base64Image = Base64.getEncoder().encodeToString(file.getBytes());
+            accommodationService.addPhoto(id, base64Image);
+            return ResponseEntity.ok().build();
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/{id}/getImages")
+    public ResponseEntity<List<String>> getImages(@PathVariable Long id) {
+        try {
+            List<String> photos = accommodationService.getPhotos(id);
+            return ResponseEntity.ok(photos);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping
