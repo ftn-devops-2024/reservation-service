@@ -2,6 +2,7 @@ package com.devops.reservationservice.service;
 
 import com.devops.reservationservice.dto.AccommodationDTO;
 import com.devops.reservationservice.dto.AvailabilityPeriodDTO;
+import com.devops.reservationservice.dto.SearchResultDTO;
 import com.devops.reservationservice.dto.SpecialPriceDTO;
 import com.devops.reservationservice.model.Accommodation;
 import com.devops.reservationservice.model.AvailabilityPeriod;
@@ -12,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -91,5 +94,43 @@ public class AccommodationService {
 
     private SpecialPriceDTO mapToSpecialPriceDTO(SpecialPrice specialPrice) {
         return new SpecialPriceDTO(specialPrice.getId(), specialPrice.getStartDate(), specialPrice.getEndDate(), specialPrice.getPrice());
+    }
+
+    public List<SearchResultDTO> searchAccommodations(String location, int numGuests, LocalDate startDate, LocalDate endDate) {
+        List<Accommodation> accommodations = accommodationRepository.searchAccommodations(location, numGuests, startDate, endDate);
+
+        return accommodations.stream().map(accommodation -> {
+            double totalPrice = calculateTotalPrice(accommodation, startDate, endDate);
+            return new SearchResultDTO(
+                    accommodation.getId(),
+                    accommodation.getOwnerId(),
+                    accommodation.getName(),
+                    accommodation.getLocation(),
+                    accommodation.getPerks().stream().map(Enum::name).collect(Collectors.toList()),
+                    accommodation.getPhotos(),
+                    accommodation.getMinGuests(),
+                    accommodation.getMaxGuests(),
+                    accommodation.getPricePerDay(),
+                    accommodation.getAutomaticReservation(),
+                    totalPrice
+            );
+        }).collect(Collectors.toList());
+    }
+
+    private double calculateTotalPrice(Accommodation accommodation, LocalDate startDate, LocalDate endDate) {
+        long days = ChronoUnit.DAYS.between(startDate, endDate);
+        double totalPrice = days * accommodation.getPricePerDay();
+
+        // Apply special prices if any
+        for (SpecialPrice specialPrice : accommodation.getSpecialPrices()) {
+            if (!startDate.isAfter(specialPrice.getEndDate()) && !endDate.isBefore(specialPrice.getStartDate())) {
+                LocalDate overlapStart = startDate.isAfter(specialPrice.getStartDate()) ? startDate : specialPrice.getStartDate();
+                LocalDate overlapEnd = endDate.isBefore(specialPrice.getEndDate()) ? endDate : specialPrice.getEndDate();
+                long overlapDays = ChronoUnit.DAYS.between(overlapStart, overlapEnd);
+                totalPrice += overlapDays * (specialPrice.getPrice() - accommodation.getPricePerDay());
+            }
+        }
+
+        return totalPrice;
     }
 }

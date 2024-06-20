@@ -16,8 +16,15 @@ public class ReservationDTO {
     private Long id;
     private Long accommodationId;
     private Long guestId;
+    private String guestName;
+    private String guestSurname;
+    private Long ownerId;
+    private String ownerName;
+    private String ownerSurname;
     private LocalDate startDate;
     private LocalDate endDate;
     private Integer numberOfGuests;
     private ReservationStatus status;
+    private String accommodationName;
+    private int cancellationCount;
 }

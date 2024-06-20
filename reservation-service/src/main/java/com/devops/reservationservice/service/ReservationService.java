@@ -1,6 +1,7 @@
 package com.devops.reservationservice.service;
 
 import com.devops.reservationservice.dto.ReservationDTO;
+import com.devops.reservationservice.dto.UserDTO;
 import com.devops.reservationservice.model.Accommodation;
 import com.devops.reservationservice.model.Reservation;
 import com.devops.reservationservice.model.ReservationStatus;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -22,6 +24,8 @@ public class ReservationService {
     private final ReservationRepository reservationRepository;
 
     private final AccommodationRepository accommodationRepository;
+    @Autowired
+    private RestTemplate restTemplate;
 
     @Transactional
     public ReservationDTO createReservation(ReservationDTO requestDTO) {
@@ -72,7 +76,7 @@ public class ReservationService {
             }
         }
 
-        return mapToDTO(reservation);
+        return convertToDTO(reservation);
     }
 
     @Transactional
@@ -93,15 +97,52 @@ public class ReservationService {
         }
     }
 
-    private ReservationDTO mapToDTO(Reservation reservation) {
-        return new ReservationDTO(
-                reservation.getId(),
-                reservation.getAccommodation().getId(),
-                reservation.getGuestId(),
-                reservation.getStartDate(),
-                reservation.getEndDate(),
-                reservation.getNumberOfGuests(),
-                reservation.getStatus()
-        );
+
+
+    public List<ReservationDTO> getUserReservations(Long userId) {
+        List<Reservation> reservations = reservationRepository.findByGuestId(userId);
+        reservations.addAll(reservationRepository.findByAccommodationOwnerId(userId));
+
+        return reservations.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    private ReservationDTO convertToDTO(Reservation reservation) {
+        ReservationDTO dto = new ReservationDTO();
+        dto.setId(reservation.getId());
+        dto.setAccommodationId(reservation.getAccommodation().getId());
+        dto.setGuestId(reservation.getGuestId());
+        dto.setStartDate(reservation.getStartDate());
+        dto.setEndDate(reservation.getEndDate());
+        dto.setNumberOfGuests(reservation.getNumberOfGuests());
+        dto.setStatus(reservation.getStatus());
+        dto.setAccommodationName(reservation.getAccommodation().getName());
+        dto.setOwnerId(reservation.getAccommodation().getOwnerId());
+
+        UserDTO guest = getUserDetails(reservation.getGuestId());
+        dto.setGuestName(guest.getName());
+        dto.setGuestSurname(guest.getSurname());
+
+        UserDTO owner = getUserDetails(reservation.getAccommodation().getOwnerId());
+        dto.setOwnerName(owner.getName());
+        dto.setOwnerSurname(owner.getSurname());
+
+
+        dto.setCancellationCount(getCancellationCount(reservation.getGuestId()));
+
+        return dto;
+    }
+
+    private UserDTO getUserDetails(Long userId) {
+        String url = "http://localhost:8000/user-service/api/user/" + userId;
+        return restTemplate.getForObject(url, UserDTO.class);
+    }
+
+    private int getCancellationCount(Long guestId) {
+        List<Reservation> reservations = reservationRepository.findByGuestId(guestId);
+        return (int) reservations.stream()
+                .filter(res -> res.getStatus() == ReservationStatus.CANCELLED)
+                .count();
     }
 }

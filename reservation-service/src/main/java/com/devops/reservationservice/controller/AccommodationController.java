@@ -1,15 +1,19 @@
 package com.devops.reservationservice.controller;
 
 import com.devops.reservationservice.dto.AccommodationDTO;
+import com.devops.reservationservice.dto.SearchResultDTO;
 import com.devops.reservationservice.exceptions.UnauthorizedException;
 import com.devops.reservationservice.service.AccommodationService;
 import com.devops.reservationservice.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -83,5 +87,18 @@ public class AccommodationController {
         } catch (RuntimeException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e);
         }
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<SearchResultDTO>> searchAccommodations(
+            @RequestParam String location,
+            @RequestParam int numGuests,
+            @RequestParam String startDate,
+            @RequestParam String endDate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate start = LocalDate.parse(startDate, formatter);
+        LocalDate end = LocalDate.parse(endDate, formatter);
+        List<SearchResultDTO> results = accommodationService.searchAccommodations(location, numGuests, start, end);
+        return ResponseEntity.ok(results);
     }
 }
