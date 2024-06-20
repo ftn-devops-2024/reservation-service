@@ -1,8 +1,8 @@
 -- Insert into accommodation table
 INSERT INTO accommodation (owner_id, name, location, min_guests, max_guests, price_per_day, automatic_reservation) VALUES
-                                                                                                                           ( 101, 'Seaside Villa', 'Beach City', 2, 5, 100.0, TRUE),
-                                                                                                                           ( 102, 'Mountain Retreat', 'Highland Valley', 1, 3, 75.0, FALSE),
-                                                                                                                           ( 103, 'Urban Apartment', 'City Center', 1, 2, 90.0, TRUE);
+                                                                                                                           ( '667334ea5fbf28585de3574c', 'Seaside Villa', 'Beach City', 2, 5, 100.0, TRUE),
+                                                                                                                           ( '667334ea5fbf28585de3574c', 'Mountain Retreat', 'Highland Valley', 1, 3, 75.0, FALSE),
+                                                                                                                           ( '667334ea5fbf28585de3574c', 'Urban Apartment', 'City Center', 1, 2, 90.0, TRUE);
 
 -- Insert into availability_period table
 INSERT INTO availability_period ( start_date, end_date, accommodation_id) VALUES

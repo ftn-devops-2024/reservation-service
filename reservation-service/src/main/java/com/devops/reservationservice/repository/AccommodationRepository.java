@@ -27,7 +27,7 @@ public interface AccommodationRepository extends JpaRepository<Accommodation, Lo
             "LEFT JOIN FETCH a.photos")
     List<Accommodation> findAllWithAssociations();
 
-    List<Accommodation> findByOwnerId(Long ownerId);
+    List<Accommodation> findByOwnerId(String ownerId);
 
     @Query("SELECT a FROM Accommodation a " +
             "JOIN a.availabilityPeriods ap " +

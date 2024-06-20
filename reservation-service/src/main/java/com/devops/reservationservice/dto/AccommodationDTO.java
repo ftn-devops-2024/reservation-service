@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 public class AccommodationDTO {
     private Long id;
-    private Long ownerId;
+    private String ownerId;
     private String name;
     private String location;
     private List<String> perks;

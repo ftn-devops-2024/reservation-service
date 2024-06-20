@@ -66,15 +66,13 @@ public class ReservationController {
         }
     }
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<ReservationDTO>> getUserReservations(@PathVariable Long userId) {
+    public ResponseEntity<List<ReservationDTO>> getUserReservations(@PathVariable String userId) {
         try {
             //authService.authorizeGuest(authToken, fingerprint);
             List<ReservationDTO> reservations = reservationService.getUserReservations(userId);
             return ResponseEntity.ok(reservations);
         } catch (UnauthorizedException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized", e);
-        } catch (RuntimeException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e);
         }
     }
 

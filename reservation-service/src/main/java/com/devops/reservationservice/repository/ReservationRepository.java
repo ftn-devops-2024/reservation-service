@@ -12,7 +12,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     List<Reservation> findByAccommodationIdAndStatusAndStartDateBetween(
             Long accommodationId, ReservationStatus status, LocalDate startDate1, LocalDate endDate1);
 
-    List<Reservation> findByGuestId(Long guestId);
+    List<Reservation> findByGuestId(String guestId);
 
-    List<Reservation> findByAccommodationOwnerId(Long ownerId);
+    List<Reservation> findByAccommodationOwnerId(String ownerId);
 }

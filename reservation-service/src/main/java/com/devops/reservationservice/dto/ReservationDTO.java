@@ -15,10 +15,10 @@ import java.time.LocalDate;
 public class ReservationDTO {
     private Long id;
     private Long accommodationId;
-    private Long guestId;
+    private String guestId;
     private String guestName;
     private String guestSurname;
-    private Long ownerId;
+    private String ownerId;
     private String ownerName;
     private String ownerSurname;
     private LocalDate startDate;

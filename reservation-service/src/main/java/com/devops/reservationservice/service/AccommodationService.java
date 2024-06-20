@@ -50,7 +50,7 @@ public class AccommodationService {
     }
 
     @Transactional(readOnly = true)
-    public List<AccommodationDTO> getAccommodationsByOwnerId(Long ownerId){
+    public List<AccommodationDTO> getAccommodationsByOwnerId(String ownerId){
         List<Accommodation> accommodations = accommodationRepository.findByOwnerId(ownerId);
         return accommodations.stream().map(this::mapToDTO).toList();
 

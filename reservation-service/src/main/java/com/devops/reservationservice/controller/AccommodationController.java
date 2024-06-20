@@ -59,7 +59,7 @@ public class AccommodationController {
     }
 
     @GetMapping ("/owner/{id}")
-    public ResponseEntity<List<AccommodationDTO>> getAccommodationsByOwner(@PathVariable Long id){
+    public ResponseEntity<List<AccommodationDTO>> getAccommodationsByOwner(@PathVariable String id){
         List<AccommodationDTO> accommodations = accommodationService.getAccommodationsByOwnerId(id);
         return ResponseEntity.ok(accommodations);
     }

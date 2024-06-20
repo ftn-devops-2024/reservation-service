@@ -24,7 +24,7 @@ public class Reservation {
     private Accommodation accommodation;
 
     @Column(nullable = false)
-    private Long guestId;
+    private String guestId;
 
     @Column(nullable = false)
     private LocalDate startDate;

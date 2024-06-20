@@ -99,7 +99,7 @@ public class ReservationService {
 
 
 
-    public List<ReservationDTO> getUserReservations(Long userId) {
+    public List<ReservationDTO> getUserReservations(String userId) {
         List<Reservation> reservations = reservationRepository.findByGuestId(userId);
         reservations.addAll(reservationRepository.findByAccommodationOwnerId(userId));
 
@@ -134,12 +134,12 @@ public class ReservationService {
         return dto;
     }
 
-    private UserDTO getUserDetails(Long userId) {
-        String url = "http://localhost:8000/user-service/api/user/" + userId;
+    private UserDTO getUserDetails(String userId) {
+        String url = "http://localhost:8000/auth-service/api/user/" + userId;
         return restTemplate.getForObject(url, UserDTO.class);
     }
 
-    private int getCancellationCount(Long guestId) {
+    private int getCancellationCount(String guestId) {
         List<Reservation> reservations = reservationRepository.findByGuestId(guestId);
         return (int) reservations.stream()
                 .filter(res -> res.getStatus() == ReservationStatus.CANCELLED)

@@ -25,7 +25,7 @@ public class Accommodation {
     private Long id;
 
     @Column
-    private Long ownerId;
+    private String ownerId;
 
     @Column
     private String name;
