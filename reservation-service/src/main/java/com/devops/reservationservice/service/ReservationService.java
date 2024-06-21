@@ -104,6 +104,7 @@ public class ReservationService {
 
 
     public List<ReservationDTO> getUserReservations(String userId, String accessToken, String fingerprint) {
+
         List<Reservation> reservations = reservationRepository.findByGuestId(userId);
         reservations.addAll(reservationRepository.findByAccommodationOwnerId(userId));
 
@@ -148,7 +149,9 @@ public class ReservationService {
         String url = "http://localhost:8000/auth-service/api/user/" + userId;
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + accessToken);
+
+        headers.set("Authorization",   accessToken);
+
         headers.add("Cookie", "Fingerprint=" + fingerprint);
 
         HttpEntity<String> entity = new HttpEntity<>(headers);
