@@ -1,5 +1,6 @@
 package com.devops.reservationservice.model;
 
+import com.devops.reservationservice.dto.ReservationDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
