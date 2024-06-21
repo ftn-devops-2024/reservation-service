@@ -84,7 +84,7 @@ public class ReservationService {
     }
 
     @Transactional
-    public void cancelReservation(Long reservationId) {
+    public ReservationDTO cancelReservation(Long reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new IllegalArgumentException("Reservation not found"));
 
@@ -99,6 +99,7 @@ public class ReservationService {
             reservation.setStatus(ReservationStatus.CANCELLED);
             reservationRepository.save(reservation);
         }
+        return convertToDTO(reservation);
     }
 
 
