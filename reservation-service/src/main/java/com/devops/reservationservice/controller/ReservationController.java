@@ -46,7 +46,7 @@ public class ReservationController {
                                                              @RequestHeader("Authorization") String authToken,
                                                              @CookieValue("Fingerprint") String fingerprint) {
         try {
-            authService.authorizeGuest(authToken, fingerprint);
+            //authService.authorizeGuest(authToken, fingerprint);
             ReservationDTO confirmedReservation = reservationService.confirmReservation(id);
             return ResponseEntity.ok(confirmedReservation);
         } catch (UnauthorizedException e) {
@@ -61,6 +61,7 @@ public class ReservationController {
                                                   @RequestHeader("Authorization") String authToken,
                                                   @CookieValue("Fingerprint") String fingerprint) {
         try {
+
             authService.authorizeHost(authToken, fingerprint);
 
             reservationService.cancelReservation(id);
@@ -76,10 +77,13 @@ public class ReservationController {
                                                                     @RequestHeader("Authorization") String authToken,
                                                                     @CookieValue("Fingerprint") String fingerprint) {
 
-            authService.authorizeHost(authToken, fingerprint);
+        try {
+            authService.authorizeGuest(authToken, fingerprint);
             List<ReservationDTO> reservations = reservationService.getUserReservations(userId, authToken, fingerprint);
             return ResponseEntity.ok(reservations);
-
+        } catch (UnauthorizedException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized", e);
+        }
 
     }
 
