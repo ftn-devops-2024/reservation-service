@@ -9,6 +9,10 @@ import com.devops.reservationservice.repository.AccommodationRepository;
 import com.devops.reservationservice.repository.ReservationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -99,13 +103,25 @@ public class ReservationService {
 
 
 
-    public List<ReservationDTO> getUserReservations(String userId) {
+    public List<ReservationDTO> getUserReservations(String userId, String accessToken, String fingerprint) {
         List<Reservation> reservations = reservationRepository.findByGuestId(userId);
         reservations.addAll(reservationRepository.findByAccommodationOwnerId(userId));
 
-        return reservations.stream()
+
+
+        List<ReservationDTO> reservationDTOS = reservations.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+
+        for (ReservationDTO reservation:reservationDTOS){
+            UserDTO owner = getUserDetails(reservation.getOwnerId(), accessToken, fingerprint);
+            reservation.setOwnerName(owner.getName());
+            reservation.setOwnerSurname(owner.getSurname());
+        }
+
+        return reservationDTOS;
+
+
     }
 
     private ReservationDTO convertToDTO(Reservation reservation) {
@@ -119,24 +135,27 @@ public class ReservationService {
         dto.setStatus(reservation.getStatus());
         dto.setAccommodationName(reservation.getAccommodation().getName());
         dto.setOwnerId(reservation.getAccommodation().getOwnerId());
-
-        UserDTO guest = getUserDetails(reservation.getGuestId());
-        dto.setGuestName(guest.getName());
-        dto.setGuestSurname(guest.getSurname());
-
-        UserDTO owner = getUserDetails(reservation.getAccommodation().getOwnerId());
-        dto.setOwnerName(owner.getName());
-        dto.setOwnerSurname(owner.getSurname());
-
-
         dto.setCancellationCount(getCancellationCount(reservation.getGuestId()));
 
         return dto;
     }
 
-    private UserDTO getUserDetails(String userId) {
+    private UserDTO getUserDetails(String userId, String accessToken, String fingerprint) {
+
+        System.out.println(accessToken);
+        System.out.println(fingerprint);
+
         String url = "http://localhost:8000/auth-service/api/user/" + userId;
-        return restTemplate.getForObject(url, UserDTO.class);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + accessToken);
+        headers.add("Cookie", "Fingerprint=" + fingerprint);
+
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<UserDTO> response = restTemplate.exchange(url, HttpMethod.GET, entity, UserDTO.class);
+        return response.getBody();
+
     }
 
     private int getCancellationCount(String guestId) {

@@ -28,7 +28,9 @@ public class ReservationController {
     }
 
     @PostMapping
-    public ResponseEntity<ReservationDTO> createReservation(@RequestBody ReservationDTO requestDTO) {
+    public ResponseEntity<ReservationDTO> createReservation(@RequestBody ReservationDTO requestDTO,
+                                                            @RequestHeader("Authorization") String authToken,
+                                                            @CookieValue("Fingerprint") String fingerprint) {
         try {
             // vraca UserDTO pa imamo info o useru
             //authService.authorizeGuest(authToken, fingerprint);
@@ -42,7 +44,9 @@ public class ReservationController {
     }
 
     @PutMapping("/{id}/confirm")
-    public ResponseEntity<ReservationDTO> confirmReservation(@PathVariable Long id) {
+    public ResponseEntity<ReservationDTO> confirmReservation(@PathVariable Long id,
+                                                             @RequestHeader("Authorization") String authToken,
+                                                             @CookieValue("Fingerprint") String fingerprint) {
         try {
             //authService.authorizeGuest(authToken, fingerprint);
             ReservationDTO confirmedReservation = reservationService.confirmReservation(id);
@@ -55,7 +59,9 @@ public class ReservationController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> cancelReservation(@PathVariable Long id) {
+    public ResponseEntity<Void> cancelReservation(@PathVariable Long id,
+                                                  @RequestHeader("Authorization") String authToken,
+                                                  @CookieValue("Fingerprint") String fingerprint) {
         try {
             reservationService.cancelReservation(id);
             return ResponseEntity.noContent().build();
@@ -66,10 +72,12 @@ public class ReservationController {
         }
     }
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<ReservationDTO>> getUserReservations(@PathVariable String userId) {
+    public ResponseEntity<List<ReservationDTO>> getUserReservations(@PathVariable String userId,
+                                                                    @RequestHeader("Authorization") String authToken,
+                                                                    @CookieValue("Fingerprint") String fingerprint) {
         try {
-            //authService.authorizeGuest(authToken, fingerprint);
-            List<ReservationDTO> reservations = reservationService.getUserReservations(userId);
+            authService.authorizeGuest(authToken, fingerprint);
+            List<ReservationDTO> reservations = reservationService.getUserReservations(userId, authToken, fingerprint);
             return ResponseEntity.ok(reservations);
         } catch (UnauthorizedException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized", e);
