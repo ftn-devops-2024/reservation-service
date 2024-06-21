@@ -9,11 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class TestController {
 
-    Logger logger = LoggerFactory.getLogger(ReservationService.class);
-
     @GetMapping("/test")
     public String test(){
-        logger.info("reservation ideee");
         return "Welcome from reservation-service";
     }
 }

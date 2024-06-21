@@ -70,7 +70,7 @@ public class AccommodationService {
         logger.info("Fetching accommodations for ownerId={}", ownerId);
 
         List<Accommodation> accommodations = accommodationRepository.findByOwnerId(ownerId);
-        return accommodations.stream().map(this::mapToDTO).collect(Collectors.toList());
+        return accommodations.stream().map(this::mapToDTO).toList();
     }
 
     @Transactional(readOnly = true)
@@ -78,7 +78,7 @@ public class AccommodationService {
         logger.info("Fetching all accommodations");
 
         List<Accommodation> accommodations = accommodationRepository.findAll();
-        return accommodations.stream().map(this::mapToDTO).collect(Collectors.toList());
+        return accommodations.stream().map(this::mapToDTO).toList();
     }
 
     @Transactional
@@ -121,7 +121,7 @@ public class AccommodationService {
     }
 
     public List<SearchResultDTO> searchAccommodations(String location, int numGuests, LocalDate startDate, LocalDate endDate) {
-        logger.info("Searching accommodations with location={}, numGuests={}, startDate={}, endDate={}", location, numGuests, startDate, endDate);
+        logger.info("Searching accommodations with provided criteria.");
 
         List<Accommodation> accommodations = accommodationRepository.searchAccommodations(location, numGuests, startDate, endDate);
 
