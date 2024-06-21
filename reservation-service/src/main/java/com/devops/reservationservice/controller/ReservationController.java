@@ -28,9 +28,7 @@ public class ReservationController {
     }
 
     @PostMapping
-    public ResponseEntity<ReservationDTO> createReservation(@RequestBody ReservationDTO requestDTO,
-                                                            @RequestHeader("Authorization") String authToken,
-                                                            @CookieValue("Fingerprint") String fingerprint) {
+    public ResponseEntity<ReservationDTO> createReservation(@RequestBody ReservationDTO requestDTO) {
         try {
             // vraca UserDTO pa imamo info o useru
             //authService.authorizeGuest(authToken, fingerprint);
@@ -48,7 +46,7 @@ public class ReservationController {
                                                              @RequestHeader("Authorization") String authToken,
                                                              @CookieValue("Fingerprint") String fingerprint) {
         try {
-            //authService.authorizeGuest(authToken, fingerprint);
+            authService.authorizeGuest(authToken, fingerprint);
             ReservationDTO confirmedReservation = reservationService.confirmReservation(id);
             return ResponseEntity.ok(confirmedReservation);
         } catch (UnauthorizedException e) {
@@ -63,6 +61,8 @@ public class ReservationController {
                                                   @RequestHeader("Authorization") String authToken,
                                                   @CookieValue("Fingerprint") String fingerprint) {
         try {
+            authService.authorizeHost(authToken, fingerprint);
+
             reservationService.cancelReservation(id);
             return ResponseEntity.noContent().build();
         } catch (UnauthorizedException e) {
@@ -75,13 +75,12 @@ public class ReservationController {
     public ResponseEntity<List<ReservationDTO>> getUserReservations(@PathVariable String userId,
                                                                     @RequestHeader("Authorization") String authToken,
                                                                     @CookieValue("Fingerprint") String fingerprint) {
-        try {
-            authService.authorizeGuest(authToken, fingerprint);
+
+            authService.authorizeHost(authToken, fingerprint);
             List<ReservationDTO> reservations = reservationService.getUserReservations(userId, authToken, fingerprint);
             return ResponseEntity.ok(reservations);
-        } catch (UnauthorizedException e) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized", e);
-        }
+
+
     }
 
 
