@@ -1,20 +1,27 @@
 package com.devops.reservationservice.controller;
 
 import com.devops.reservationservice.dto.AccommodationDTO;
+import com.devops.reservationservice.dto.SearchResultDTO;
 import com.devops.reservationservice.exceptions.UnauthorizedException;
 import com.devops.reservationservice.service.AccommodationService;
 import com.devops.reservationservice.service.AuthService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 import java.util.List;
 
 @RestController
 @RequestMapping("/accommodations")
-@CrossOrigin(origins = "http://localhost:4200")
 public class AccommodationController {
     private final AccommodationService accommodationService;
 
@@ -23,6 +30,35 @@ public class AccommodationController {
 
     public AccommodationController(AccommodationService accommodationService) {
         this.accommodationService = accommodationService;
+    }
+
+    @PostMapping("/{id}/uploadImage")
+    public ResponseEntity<String> uploadImage(@PathVariable Long id,
+                                              @RequestParam("file") MultipartFile file,
+                                              @RequestHeader("Authorization") String authToken,
+                                              @CookieValue("Fingerprint") String fingerprint) {
+        try {
+            authService.authorizeHost(authToken, fingerprint);
+            String base64Image = Base64.getEncoder().encodeToString(file.getBytes());
+            accommodationService.addPhoto(id, base64Image);
+            return ResponseEntity.ok().build();
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/{id}/getImages")
+    public ResponseEntity<List<String>> getImages(@PathVariable Long id,
+                                                  @RequestHeader("Authorization") String authToken,
+                                                  @CookieValue("Fingerprint") String fingerprint) {
+        try {
+            authService.authorizeHost(authToken, fingerprint);
+
+            List<String> photos = accommodationService.getPhotos(id);
+            return ResponseEntity.ok(photos);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping
@@ -48,25 +84,59 @@ public class AccommodationController {
                                                                 @CookieValue("Fingerprint") String fingerprint) {
         try {
             authService.authorizeHost(authToken, fingerprint);
-            AccommodationDTO updatedAccommodation = accommodationService.updateAccommodation(requestDTO);
+            AccommodationDTO updatedAccommodation = accommodationService.updateAccommodation(id, requestDTO);
             return ResponseEntity.ok(updatedAccommodation);
+        } catch (UnauthorizedException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized", e);
+        }
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<AccommodationDTO> getAccommodationById(@PathVariable Long id,
+                                                                 @RequestHeader("Authorization") String authToken,
+                                                                 @CookieValue("Fingerprint") String fingerprint) {
+        try{
+            authService.authorizeHost(authToken, fingerprint);
+            AccommodationDTO accommodation = accommodationService.getAccommodationById(id);
+            return ResponseEntity.ok(accommodation);
+        }catch (UnauthorizedException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized", e);
+        } catch (RuntimeException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e);
+        }
+
+    }
+
+    @GetMapping ("/owner/{id}")
+    public ResponseEntity<List<AccommodationDTO>> getAccommodationsByOwner(@PathVariable String id,
+                                                                           @RequestHeader("Authorization") String authToken,
+                                                                           @CookieValue("Fingerprint") String fingerprint){
+        try{
+            authService.authorizeHost(authToken, fingerprint);
+            List<AccommodationDTO> accommodations = accommodationService.getAccommodationsByOwnerId(id);
+            return ResponseEntity.ok(accommodations);
         } catch (UnauthorizedException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized", e);
         } catch (RuntimeException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e);
         }
-    }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<AccommodationDTO> getAccommodationById(@PathVariable Long id) {
-        AccommodationDTO accommodation = accommodationService.getAccommodationById(id);
-        return ResponseEntity.ok(accommodation);
     }
 
     @GetMapping
-    public ResponseEntity<List<AccommodationDTO>> getAllAccommodations() {
-        List<AccommodationDTO> accommodations = accommodationService.getAllAccommodations();
-        return ResponseEntity.ok(accommodations);
+    public ResponseEntity<List<AccommodationDTO>> getAllAccommodations(
+                                                    @RequestHeader("Authorization") String authToken,
+                                                    @CookieValue("Fingerprint") String fingerprint) {
+        try{
+            authService.authorizeHost(authToken, fingerprint);
+            List<AccommodationDTO> accommodations = accommodationService.getAllAccommodations();
+            return ResponseEntity.ok(accommodations);
+        } catch (UnauthorizedException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized", e);
+        } catch (RuntimeException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e);
+        }
+
     }
 
     @DeleteMapping("/{id}")
@@ -86,5 +156,28 @@ public class AccommodationController {
         } catch (RuntimeException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e);
         }
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<SearchResultDTO>> searchAccommodations(
+            @RequestParam String location,
+            @RequestParam int numGuests,
+            @RequestParam String startDate,
+            @RequestParam String endDate,
+            @RequestHeader("Authorization") String authToken,
+            @CookieValue("Fingerprint") String fingerprint) {
+        try{
+            authService.authorizeHost(authToken, fingerprint);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            LocalDate start = LocalDate.parse(startDate, formatter);
+            LocalDate end = LocalDate.parse(endDate, formatter);
+            List<SearchResultDTO> results = accommodationService.searchAccommodations(location, numGuests, start, end);
+            return ResponseEntity.ok(results);
+        } catch (UnauthorizedException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized", e);
+        } catch (RuntimeException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e);
+    }
+
     }
 }

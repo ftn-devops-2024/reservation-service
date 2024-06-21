@@ -11,7 +11,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class AccommodationDTO {
+public class SearchResultDTO {
     private Long id;
     private String ownerId;
     private String name;
@@ -22,6 +22,5 @@ public class AccommodationDTO {
     private Integer maxGuests;
     private Double pricePerDay;
     private Boolean automaticReservation;
-    private List<AvailabilityPeriodDTO> availabilityPeriods;
-    private List<SpecialPriceDTO> specialPrices;
+    private Double totalPrice;
 }
