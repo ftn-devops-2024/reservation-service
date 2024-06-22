@@ -36,8 +36,8 @@ public class Accommodation {
     @ElementCollection(fetch = FetchType.EAGER)
     private List<Perk> perks;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    private List<String> photos;
+    @Column(columnDefinition = "TEXT")
+    private String photo;
 
     @Column
     private Integer minGuests;
@@ -70,7 +70,7 @@ public class Accommodation {
             perkArrayList.add(Perk.valueOf(perk));
         }
         this.perks = perkArrayList;
-        this.photos = accommodationDTO.getPhotos();
+        this.photo = accommodationDTO.getPhoto();
         this.minGuests = accommodationDTO.getMinGuests();
         this.maxGuests = accommodationDTO.getMaxGuests();
         this.pricePerDay = accommodationDTO.getPricePerDay();

@@ -17,21 +17,19 @@ public interface AccommodationRepository extends JpaRepository<Accommodation, Lo
     @Query("SELECT a FROM Accommodation a " +
             "LEFT JOIN FETCH a.availabilityPeriods " +
             "LEFT JOIN FETCH a.specialPrices " +
-            "LEFT JOIN FETCH a.photos " +
             "WHERE a.id = :id")
     Optional<Accommodation> findByIdWithAssociations(@Param("id") Long id);
 
     @Query("SELECT DISTINCT a FROM Accommodation a " +
             "LEFT JOIN FETCH a.availabilityPeriods " +
-            "LEFT JOIN FETCH a.specialPrices " +
-            "LEFT JOIN FETCH a.photos")
+            "LEFT JOIN FETCH a.specialPrices ")
     List<Accommodation> findAllWithAssociations();
 
     List<Accommodation> findByOwnerId(String ownerId);
 
     @Query("SELECT a FROM Accommodation a " +
             "JOIN a.availabilityPeriods ap " +
-            "WHERE a.location = :location " +
+            "WHERE LOWER(a.location) LIKE LOWER(CONCAT('%', :location, '%')) " +
             "AND a.minGuests <= :numGuests " +
             "AND a.maxGuests >= :numGuests " +
             "AND ap.startDate <= :startDate " +

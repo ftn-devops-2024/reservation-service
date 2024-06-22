@@ -17,7 +17,7 @@ public class AccommodationDTO {
     private String name;
     private String location;
     private List<String> perks;
-    private List<String> photos;
+    private String photo;
     private Integer minGuests;
     private Integer maxGuests;
     private Double pricePerDay;

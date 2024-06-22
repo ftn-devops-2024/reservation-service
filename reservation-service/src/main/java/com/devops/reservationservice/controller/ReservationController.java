@@ -1,6 +1,8 @@
 package com.devops.reservationservice.controller;
 
+import com.devops.reservationservice.dto.AccommodationDTO;
 import com.devops.reservationservice.dto.ReservationDTO;
+import com.devops.reservationservice.dto.UserDTO;
 import com.devops.reservationservice.exceptions.UnauthorizedException;
 import com.devops.reservationservice.service.AuthService;
 import com.devops.reservationservice.service.ReservationService;
@@ -46,12 +48,12 @@ public class ReservationController {
         }
     }
 
-    @PutMapping("/{id}/confirm")
+    @GetMapping("/{id}/confirm")
     public ResponseEntity<ReservationDTO> confirmReservation(@PathVariable Long id,
                                                              @RequestHeader("Authorization") String authToken,
                                                              @CookieValue("Fingerprint") String fingerprint) {
         try {
-            authService.authorizeGuest(authToken, fingerprint);
+            authService.authorizeHost(authToken, fingerprint);
             ReservationDTO confirmedReservation = reservationService.confirmReservation(id);
             simpMessagingTemplate.convertAndSend("/notification/reservation-confirmed", confirmedReservation);
             return ResponseEntity.ok(confirmedReservation);
@@ -84,7 +86,7 @@ public class ReservationController {
                                                   @CookieValue("Fingerprint") String fingerprint) {
         try {
             authService.authorizeHost(authToken, fingerprint);
-            ReservationDTO r = reservationService.cancelReservation(id);
+            ReservationDTO r = reservationService.rejectReservation(id);
             simpMessagingTemplate.convertAndSend("/notification/reservation-rejected", r);
             return ResponseEntity.noContent().build();
         } catch (UnauthorizedException e) {
@@ -103,7 +105,41 @@ public class ReservationController {
             List<ReservationDTO> reservations = reservationService.getUserReservations(userId, authToken, fingerprint);
             return ResponseEntity.ok(reservations);
         } catch (UnauthorizedException e) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized", e);
+            try{
+                authService.authorizeHost(authToken, fingerprint);
+                List<ReservationDTO> reservations = reservationService.getUserReservations(userId, authToken, fingerprint);
+                return ResponseEntity.ok(reservations);
+            } catch (Exception ex) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized", e);
+            }
+        }
+
+    }
+
+    @GetMapping("/userStays/{userId}")
+    public ResponseEntity<List<AccommodationDTO>> getUserStays(@PathVariable String userId,
+                                                               @RequestHeader("Authorization") String authToken,
+                                                               @CookieValue("Fingerprint") String fingerprint) {
+        try {
+            authService.authorizeGuest(authToken, fingerprint);
+            List<AccommodationDTO> reservations = reservationService.getUserStays(userId);
+            return ResponseEntity.ok(reservations);
+        } catch (Exception ex) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized", ex);
+        }
+
+    }
+
+    @GetMapping("/userHosts/{userId}")
+    public ResponseEntity<List<UserDTO>> getUserHosts(@PathVariable String userId,
+                                                      @RequestHeader("Authorization") String authToken,
+                                                      @CookieValue("Fingerprint") String fingerprint) {
+        try {
+            authService.authorizeGuest(authToken, fingerprint);
+            List<UserDTO> reservations = reservationService.getUserHosts(userId, authToken, fingerprint);
+            return ResponseEntity.ok(reservations);
+        } catch (Exception ex) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized", ex);
         }
 
     }
