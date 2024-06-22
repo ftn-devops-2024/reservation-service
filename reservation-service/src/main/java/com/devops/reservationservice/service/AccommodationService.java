@@ -30,7 +30,8 @@ public class AccommodationService {
     public AccommodationDTO createAccommodation(AccommodationDTO requestDTO) {
         Accommodation accommodation = new Accommodation();
         accommodation.populateAccommodationFields(requestDTO);
-        accommodationRepository.save(accommodation);
+        Accommodation saved = accommodationRepository.save(accommodation);
+        requestDTO.setId(saved.getId());
         return requestDTO;
     }
 
@@ -73,14 +74,14 @@ public class AccommodationService {
         return false;
     }
 
-    private AccommodationDTO mapToDTO(Accommodation accommodation) {
+    public AccommodationDTO mapToDTO(Accommodation accommodation) {
         AccommodationDTO dto = new AccommodationDTO();
         dto.setId(accommodation.getId());
         dto.setOwnerId(accommodation.getOwnerId());
         dto.setName(accommodation.getName());
         dto.setLocation(accommodation.getLocation());
         dto.setPerks(accommodation.getPerks().stream().map(Perk::name).collect(Collectors.toList()));
-        dto.setPhotos(accommodation.getPhotos());
+        dto.setPhoto(accommodation.getPhoto());
         dto.setMinGuests(accommodation.getMinGuests());
         dto.setMaxGuests(accommodation.getMaxGuests());
         dto.setPricePerDay(accommodation.getPricePerDay());
@@ -109,7 +110,7 @@ public class AccommodationService {
                     accommodation.getName(),
                     accommodation.getLocation(),
                     accommodation.getPerks().stream().map(Enum::name).collect(Collectors.toList()),
-                    accommodation.getPhotos(),
+                    accommodation.getPhoto(),
                     accommodation.getMinGuests(),
                     accommodation.getMaxGuests(),
                     accommodation.getPricePerDay(),
@@ -140,21 +141,20 @@ public class AccommodationService {
         Optional<Accommodation> optionalAccommodation = accommodationRepository.findById(id);
         if (optionalAccommodation.isPresent()) {
             Accommodation accommodation = optionalAccommodation.get();
-            List<String> photos = accommodation.getPhotos();
-            photos.add(base64Image); // Add base64 image string to the list of photos
-            accommodation.setPhotos(photos);
+            accommodation.setPhoto(base64Image);
             accommodationRepository.save(accommodation);
         } else {
             throw new EntityNotFoundException("Accommodation not found with id: " + id);
         }
     }
-    public List<String> getPhotos(Long id) {
-        Optional<Accommodation> optionalAccommodation = accommodationRepository.findById(id);
-        if (optionalAccommodation.isPresent()) {
-            Accommodation accommodation = optionalAccommodation.get();
-            return accommodation.getPhotos(); // Retrieve list of base64 image strings
-        } else {
-            throw new EntityNotFoundException("Accommodation not found with id: " + id);
-        }
-    }
+
+//    public List<String> getPhotos(Long id) {
+//        Optional<Accommodation> optionalAccommodation = accommodationRepository.findById(id);
+//        if (optionalAccommodation.isPresent()) {
+//            Accommodation accommodation = optionalAccommodation.get();
+//            return accommodation.getPhotos(); // Retrieve list of base64 image strings
+//        } else {
+//            throw new EntityNotFoundException("Accommodation not found with id: " + id);
+//        }
+//    }
 }

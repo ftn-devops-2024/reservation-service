@@ -2,21 +2,21 @@ package com.devops.reservationservice.controller;
 
 import com.devops.reservationservice.dto.AccommodationDTO;
 import com.devops.reservationservice.dto.SearchResultDTO;
+import com.devops.reservationservice.dto.SearchStayDTO;
 import com.devops.reservationservice.exceptions.UnauthorizedException;
 import com.devops.reservationservice.service.AccommodationService;
 import com.devops.reservationservice.service.AuthService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.ws.rs.Consumes;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.List;
 
@@ -32,7 +32,7 @@ public class AccommodationController {
         this.accommodationService = accommodationService;
     }
 
-    @PostMapping("/{id}/uploadImage")
+    @PostMapping(value = "/{id}/uploadImage", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> uploadImage(@PathVariable Long id,
                                               @RequestParam("file") MultipartFile file,
                                               @RequestHeader("Authorization") String authToken,
@@ -47,19 +47,19 @@ public class AccommodationController {
         }
     }
 
-    @GetMapping("/{id}/getImages")
-    public ResponseEntity<List<String>> getImages(@PathVariable Long id,
-                                                  @RequestHeader("Authorization") String authToken,
-                                                  @CookieValue("Fingerprint") String fingerprint) {
-        try {
-            authService.authorizeHost(authToken, fingerprint);
-
-            List<String> photos = accommodationService.getPhotos(id);
-            return ResponseEntity.ok(photos);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
+//    @GetMapping("/{id}/getImages")
+//    public ResponseEntity<List<String>> getImages(@PathVariable Long id,
+//                                                  @RequestHeader("Authorization") String authToken,
+//                                                  @CookieValue("Fingerprint") String fingerprint) {
+//        try {
+//            authService.authorizeHost(authToken, fingerprint);
+//
+//            List<String> photos = accommodationService.getPhotos(id);
+//            return ResponseEntity.ok(photos);
+//        } catch (EntityNotFoundException e) {
+//            return ResponseEntity.notFound().build();
+//        }
+//    }
 
     @PostMapping
     public ResponseEntity<AccommodationDTO> createAccommodation(
@@ -158,20 +158,11 @@ public class AccommodationController {
         }
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<List<SearchResultDTO>> searchAccommodations(
-            @RequestParam String location,
-            @RequestParam int numGuests,
-            @RequestParam String startDate,
-            @RequestParam String endDate,
-            @RequestHeader("Authorization") String authToken,
-            @CookieValue("Fingerprint") String fingerprint) {
+    @PostMapping("/search")
+    public ResponseEntity<List<SearchResultDTO>> searchAccommodations(@RequestBody SearchStayDTO dto) {
         try{
-            authService.authorizeHost(authToken, fingerprint);
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            LocalDate start = LocalDate.parse(startDate, formatter);
-            LocalDate end = LocalDate.parse(endDate, formatter);
-            List<SearchResultDTO> results = accommodationService.searchAccommodations(location, numGuests, start, end);
+            List<SearchResultDTO> results = accommodationService.searchAccommodations(
+                    dto.getLocation(), dto.getGuests(), dto.getStartDate(), dto.getEndDate());
             return ResponseEntity.ok(results);
         } catch (UnauthorizedException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized", e);
