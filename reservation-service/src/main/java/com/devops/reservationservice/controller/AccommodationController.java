@@ -6,8 +6,6 @@ import com.devops.reservationservice.dto.SearchStayDTO;
 import com.devops.reservationservice.exceptions.UnauthorizedException;
 import com.devops.reservationservice.service.AccommodationService;
 import com.devops.reservationservice.service.AuthService;
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.ws.rs.Consumes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -47,19 +45,6 @@ public class AccommodationController {
         }
     }
 
-//    @GetMapping("/{id}/getImages")
-//    public ResponseEntity<List<String>> getImages(@PathVariable Long id,
-//                                                  @RequestHeader("Authorization") String authToken,
-//                                                  @CookieValue("Fingerprint") String fingerprint) {
-//        try {
-//            authService.authorizeHost(authToken, fingerprint);
-//
-//            List<String> photos = accommodationService.getPhotos(id);
-//            return ResponseEntity.ok(photos);
-//        } catch (EntityNotFoundException e) {
-//            return ResponseEntity.notFound().build();
-//        }
-//    }
 
     @PostMapping
     public ResponseEntity<AccommodationDTO> createAccommodation(
@@ -96,7 +81,7 @@ public class AccommodationController {
                                                                  @RequestHeader("Authorization") String authToken,
                                                                  @CookieValue("Fingerprint") String fingerprint) {
         try{
-            authService.authorizeHost(authToken, fingerprint);
+            // authService.authorizeHost(authToken, fingerprint);
             AccommodationDTO accommodation = accommodationService.getAccommodationById(id);
             return ResponseEntity.ok(accommodation);
         }catch (UnauthorizedException e) {
