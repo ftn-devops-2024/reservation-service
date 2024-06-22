@@ -11,6 +11,8 @@ import com.devops.reservationservice.model.SpecialPrice;
 import com.devops.reservationservice.repository.AccommodationRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,52 +27,71 @@ import java.util.stream.Collectors;
 public class AccommodationService {
 
     private final AccommodationRepository accommodationRepository;
+    private static final Logger logger = LoggerFactory.getLogger(AccommodationService.class);
 
     @Transactional
     public AccommodationDTO createAccommodation(AccommodationDTO requestDTO) {
+        logger.info("Creating accommodation with name={}, location={}", requestDTO.getName(), requestDTO.getLocation());
+
         Accommodation accommodation = new Accommodation();
         accommodation.populateAccommodationFields(requestDTO);
         Accommodation saved = accommodationRepository.save(accommodation);
         requestDTO.setId(saved.getId());
+        logger.info("Accommodation created successfully with id={}", accommodation.getId());
         return requestDTO;
     }
 
     @Transactional
     public AccommodationDTO updateAccommodation(Long id, AccommodationDTO requestDTO) {
+        logger.info("Updating accommodation with id={}", id);
+
         Accommodation accommodation = accommodationRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Accommodation not found"));
 
         accommodation.populateAccommodationFields(requestDTO);
         accommodationRepository.save(accommodation);
+
+        logger.info("Accommodation updated successfully with id={}", id);
         return requestDTO;
     }
 
     @Transactional(readOnly = true)
     public AccommodationDTO getAccommodationById(Long id) {
+        logger.info("Fetching accommodation with id={}", id);
+
         Accommodation accommodation = accommodationRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Accommodation not found"));
+
         return mapToDTO(accommodation);
     }
 
     @Transactional(readOnly = true)
     public List<AccommodationDTO> getAccommodationsByOwnerId(String ownerId){
+        logger.info("Fetching accommodations for ownerId={}", ownerId);
+
         List<Accommodation> accommodations = accommodationRepository.findByOwnerId(ownerId);
         return accommodations.stream().map(this::mapToDTO).toList();
-
     }
 
     @Transactional(readOnly = true)
     public List<AccommodationDTO> getAllAccommodations() {
+        logger.info("Fetching all accommodations");
+
         List<Accommodation> accommodations = accommodationRepository.findAll();
         return accommodations.stream().map(this::mapToDTO).toList();
     }
 
     @Transactional
     public boolean deleteAccommodation(Long id) {
+        logger.info("Deleting accommodation with id={}", id);
+
         if (accommodationRepository.existsById(id)) {
             accommodationRepository.deleteById(id);
+            logger.info("Accommodation deleted successfully with id={}", id);
             return true;
         }
+
+        logger.warn("Accommodation with id={} not found. Deletion failed.", id);
         return false;
     }
 
@@ -100,6 +121,8 @@ public class AccommodationService {
     }
 
     public List<SearchResultDTO> searchAccommodations(String location, int numGuests, LocalDate startDate, LocalDate endDate) {
+        logger.info("Searching accommodations with provided criteria.");
+
         List<Accommodation> accommodations = accommodationRepository.searchAccommodations(location, numGuests, startDate, endDate);
 
         return accommodations.stream().map(accommodation -> {
@@ -138,23 +161,17 @@ public class AccommodationService {
     }
 
     public void addPhoto(Long id, String base64Image) {
+        logger.info("Adding photo to accommodation with id={}", id);
+
         Optional<Accommodation> optionalAccommodation = accommodationRepository.findById(id);
         if (optionalAccommodation.isPresent()) {
             Accommodation accommodation = optionalAccommodation.get();
             accommodation.setPhoto(base64Image);
             accommodationRepository.save(accommodation);
+
+            logger.info("Photo added successfully to accommodation with id={}", id);
         } else {
             throw new EntityNotFoundException("Accommodation not found with id: " + id);
         }
     }
-
-//    public List<String> getPhotos(Long id) {
-//        Optional<Accommodation> optionalAccommodation = accommodationRepository.findById(id);
-//        if (optionalAccommodation.isPresent()) {
-//            Accommodation accommodation = optionalAccommodation.get();
-//            return accommodation.getPhotos(); // Retrieve list of base64 image strings
-//        } else {
-//            throw new EntityNotFoundException("Accommodation not found with id: " + id);
-//        }
-//    }
 }

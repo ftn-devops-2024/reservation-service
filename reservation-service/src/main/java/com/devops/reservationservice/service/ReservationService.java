@@ -10,6 +10,8 @@ import com.devops.reservationservice.model.ReservationStatus;
 import com.devops.reservationservice.repository.AccommodationRepository;
 import com.devops.reservationservice.repository.ReservationRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -29,17 +31,20 @@ import java.util.stream.Collectors;
 public class ReservationService {
 
     private final ReservationRepository reservationRepository;
-
     private final AccommodationRepository accommodationRepository;
 
     private final AccommodationService accommodationService;
 
-
     @Autowired
     private WebClient.Builder webClientBuilder;
 
+    private static final Logger logger = LoggerFactory.getLogger(ReservationService.class);
+
     @Transactional
     public ReservationDTO createReservation(ReservationDTO requestDTO) {
+        logger.info("Creating reservation for accommodationId={}, guestId={}, startDate={}, endDate={}",
+                requestDTO.getAccommodationId(), requestDTO.getGuestId(), requestDTO.getStartDate(), requestDTO.getEndDate());
+
         Accommodation accommodation = accommodationRepository.findById(requestDTO.getAccommodationId())
                 .orElseThrow(() -> new IllegalArgumentException("Accommodation not found"));
 
@@ -63,11 +68,14 @@ public class ReservationService {
         requestDTO.setId(reservation.getId());
         requestDTO.setStatus(reservation.getStatus());
 
+        logger.info("Reservation created successfully with id={}, status={}", requestDTO.getId(), requestDTO.getStatus());
         return requestDTO;
     }
 
     @Transactional
     public ReservationDTO confirmReservation(Long reservationId) {
+        logger.info("Confirming reservation with id={}", reservationId);
+
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new IllegalArgumentException("Reservation not found"));
 
@@ -87,11 +95,14 @@ public class ReservationService {
             }
         }
 
+        logger.info("Reservation confirmed successfully with id={}", reservationId);
         return convertToDTO(reservation);
     }
 
     @Transactional
     public ReservationDTO cancelReservation(Long reservationId) {
+        logger.info("Cancelling reservation with id={}", reservationId);
+
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new IllegalArgumentException("Reservation not found"));
 
@@ -106,6 +117,8 @@ public class ReservationService {
             reservation.setStatus(ReservationStatus.CANCELLED);
             reservationRepository.save(reservation);
         }
+
+        logger.info("Reservation cancelled successfully with id={}", reservationId);
         return convertToDTO(reservation);
     }
 
@@ -128,8 +141,8 @@ public class ReservationService {
         return convertToDTO(reservation);
     }
 
-
     public List<ReservationDTO> getUserReservations(String userId, String accessToken, String fingerprint) {
+        logger.info("Fetching reservations for userId={} with accessToken={} and fingerprint={}", userId, accessToken, fingerprint);
 
         List<Reservation> reservations = reservationRepository.findByGuestId(userId);
         reservations.addAll(reservationRepository.findByAccommodationOwnerId(userId));
@@ -138,7 +151,7 @@ public class ReservationService {
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
 
-        for (ReservationDTO reservation:reservationDTOS){
+        for (ReservationDTO reservation : reservationDTOS) {
             UserDTO owner = getUserDetails(reservation.getOwnerId(), accessToken, fingerprint);
             UserDTO guest = getUserDetails(reservation.getGuestId(), accessToken, fingerprint);
 
@@ -150,9 +163,8 @@ public class ReservationService {
             reservation.setGuestSurname(guest.getSurname());
         }
 
+        logger.info("Retrieved {} reservations for userId={}", reservationDTOS.size(), userId);
         return reservationDTOS;
-
-
     }
 
     private ReservationDTO convertToDTO(Reservation reservation) {
@@ -172,9 +184,7 @@ public class ReservationService {
     }
 
     private UserDTO getUserDetails(String userId, String accessToken, String fingerprint) {
-
-        System.out.println(accessToken);
-        System.out.println(fingerprint);
+        logger.info("Fetching user details for userId={} with accessToken={} and fingerprint={}", userId, accessToken, fingerprint);
 
         String url = "http://localhost:8000/auth-service/api/user/" + userId;
 
@@ -204,6 +214,8 @@ public class ReservationService {
     }
 
     private int getCancellationCount(String guestId) {
+        logger.info("Fetching cancellation count for guestId={}", guestId);
+
         List<Reservation> reservations = reservationRepository.findByGuestId(guestId);
         return (int) reservations.stream()
                 .filter(res -> res.getStatus() == ReservationStatus.CANCELLED)
